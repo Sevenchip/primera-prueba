@@ -15,7 +15,7 @@ from cls_Stack import cls_Stack
 import Subrutinas
 
 REINA_CORAZONES = "QC"
-ESPERA_SEGUNDOS = 2
+ESPERA_SEGUNDOS = 1
 ANCHO_COLUMNA = 12
 
 
@@ -42,7 +42,78 @@ class Jugador:
         return naipe
 
     def limpiar_partida(self) -> None:
-        #Vacia la pila al terminar el juego (puede quedar con naipes si alguien gano antes)
+        #vacia la pila al terminar el juego (puede quedar con naipes si alguien gano antes)
         while not self.partida.isempty():
             self.partida.pop()
         assert self.partida.isempty(), "La partida debe quedar vacía al finalizar"
+
+def imprimir_encabezado(jugadores: list[Jugador]) -> None:
+    #imprime los nombres de los jugadores uno en cada columna
+    print("".join(j.nombre.ljust(ANCHO_COLUMNA) for j in jugadores))
+    print("".join(("-" * len(j.nombre)).ljust(ANCHO_COLUMNA) for j in jugadores))
+
+
+def imprimir_naipe(naipe: str) -> None:
+    #imprime el naipe de un jugador en su columna (esta vacio si ya no tiene naipes)."""
+    print(naipe.ljust(ANCHO_COLUMNA), end="", flush=True)
+
+
+def jugar(jugadores: list[Jugador]) -> None:
+    #arranca el juego por turnos hasta que salga la Reina de corazones o se acaben los naipes... deberia
+    imprimir_encabezado(jugadores)
+
+    while any(j.tiene_naipes() for j in jugadores):
+        for jugador in jugadores:
+            naipe = jugador.jugar_turno() if jugador.tiene_naipes() else ""
+            imprimir_naipe(naipe)
+
+            if naipe == REINA_CORAZONES:
+                print()
+                return
+
+            sleep(ESPERA_SEGUNDOS)   # espera q entre un jugador y el siguiente
+        print()                      # fin de la fila
+
+
+def calcular_ganador(jugadores: list[Jugador]) -> Jugador | None:
+    #el ganador es quien le salio la reina de corazones, si nadie la obtuvo, None
+    return next((j for j in jugadores if REINA_CORAZONES in j.obtenidos), None)
+
+
+def obtener_corazones(ganador: Jugador) -> list[str]:
+    #los naipes de corazones acumulados por el ganador
+    return [n for n in ganador.obtenidos if n.endswith("C")]
+    #f n.endswith("C"): es el filtro osea solo pasan los naipes cuyo texto termina en "C", que es la letra de corazones
+    # Alternativa con lambda + filter:
+    # return list(filter(lambda n: n.endswith("C"), ganador.obtenidos))
+
+
+def imprimir_corazones(ganador: Jugador, corazones: list[str]) -> None:
+    print(f"Corazones acumulados por {ganador.nombre}: {corazones}")
+
+def main() -> None:
+    print()
+    print("Buscando a la Reina de Corazones")
+    print("================================")
+
+    nombres = ["Merlina", "Pericles", "Tío Lucas", "Homero"]
+    jugadores = [Jugador(nombre) for nombre in nombres]
+
+    Subrutinas.repartir_naipes(jugadores)
+    jugar(jugadores)
+
+    ganador = calcular_ganador(jugadores)
+    print()
+    if ganador is None:
+        print("Nadie obtuvo la Reina de Corazones: los jugadores se quedaron sin naipes.")
+    else:
+        print(f"¡{ganador.nombre} obtuvo la Reina de Corazones!")
+        imprimir_corazones(ganador, obtener_corazones(ganador))
+
+    # Restricción: las pilas deben quedar vacías al finalizar
+    for jugador in jugadores:
+        jugador.limpiar_partida()
+
+
+if __name__ == "__main__":
+    main()
