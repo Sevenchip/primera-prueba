@@ -11,6 +11,7 @@ Student......:
 ================================================================================================="""
 from cls_Stack import cls_Stack
 
+
 print()
 print("Stack implementation")
 print("=================================")
@@ -27,4 +28,37 @@ for letra in "Cuquita":
 
 while not pilita.isempty():
     print(pilita.pop())
+
+import Problema1
+import Problema2
+
+
+def mostrar_menu() -> None:
+    print()
+    print("================================")
+    print("1.Evaluación de expresiones matematicas")
+    print("2.Buscando a la reina de corazones(Juego)")
+    print("0.Salir")
+
+
+def main() -> None:
+    acciones = {"1": Problema1.main, "2": Problema2.main}
+
+    while True:
+        mostrar_menu()
+        opcion = input("\nElija una opción: ").strip()
+
+        if opcion == "0":
+            print("\nFin del programa.")
+            break
+        elif opcion in acciones:
+            acciones[opcion]()
+        else:
+            print("\nOpción no válida, intente de nuevo.")
+
+
+if __name__ == "__main__":
+    main()
+
+
 
