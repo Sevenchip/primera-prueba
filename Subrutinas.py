@@ -12,4 +12,19 @@ baraja = [["1B", "2B", "3B", "4B", "5B", "6B", "7B", "8B", "9B", "10B", "JB", "Q
 
 
 
+def repartir_naipes(jugadores) -> None:
+    """Reparte un naipe a la vez a cada jugador, de forma aleatoria y sin repetir naipes,
+    hasta que la pila de cada jugador alcance su tope (10 naipes)."""
+    # Se "aplana" la baraja (lista de listas) en una sola lista de naipes disponibles
+    disponibles = [naipe for palo in baraja for naipe in palo]
+
+    while not all(j.partida.isfull() for j in jugadores):
+        for jugador in jugadores:
+            if jugador.partida.isfull():
+                continue
+            if not disponibles:
+                return  # ya no quedan naipes en la baraja
+            naipe = random.choice(disponibles)
+            disponibles.remove(naipe)   # garantiza que nadie más reciba este naipe
+            jugador.recibir_naipe(naipe)
 
